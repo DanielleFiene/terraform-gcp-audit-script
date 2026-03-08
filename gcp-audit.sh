@@ -127,6 +127,22 @@ for svc in $(gcloud run services list \
     2>/dev/null || warn "Could not describe service: $svc"
 done
 
+echo ""
+echo "=== 5b-iam. Cloud Run – IAM policies per service ==="
+for svc in $(gcloud run services list \
+    --project="$PROJECT_ID" --region="$REGION" \
+    --format="value(metadata.name)" 2>/dev/null); do
+  echo "--- IAM policy: $svc ---"
+  policy=$(gcloud run services get-iam-policy "$svc" \
+    --region="$REGION" --project="$PROJECT_ID" \
+    --format="yaml" 2>/dev/null || true)
+  echo "$policy"
+  # Flag public access
+  if echo "$policy" | grep -q "allUsers\|allAuthenticatedUsers"; then
+    warn "PUBLIC ACCESS: $svc is publicly invokable (allUsers or allAuthenticatedUsers)"
+  fi
+done
+
 run "5c. Cloud Run jobs ($REGION)" \
   gcloud run jobs list \
     --project="$PROJECT_ID" --region="$REGION" \
