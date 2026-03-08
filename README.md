@@ -38,15 +38,14 @@ gcloud auth application-default login
 
 ## Usage
 
+Both arguments are required — no defaults are assumed to avoid accidentally auditing the wrong project or region.
+
 ```bash
-# Audit with explicit project and region
+# Standard usage
 ./gcp-audit.sh my-project-id europe-west4
 
-# Audit using environment variables
+# Using environment variables
 PROJECT_ID=my-project-id REGION=us-east1 ./gcp-audit.sh
-
-# Audit using the currently active gcloud project
-./gcp-audit.sh
 ```
 
 Output is written to `./gcp-audit-<PROJECT_ID>-<timestamp>.txt` and printed to stdout simultaneously.
