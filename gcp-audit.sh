@@ -14,7 +14,7 @@ TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 OUTPUT_FILE="./gcp-audit-${PROJECT_ID}-${TIMESTAMP}.txt"
 
 # Colours
-GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
+GREEN='\e[0;32m'; YELLOW='\e[1;33m'; RED='\e[0;31m'; NC='\e[0m'
 info()  { echo -e "${GREEN}[INFO]${NC}  $*"; }
 warn()  { echo -e "${YELLOW}[WARN]${NC}  $*"; }
 err()   { echo -e "${RED}[ERR]${NC}   $*"; }
@@ -61,6 +61,29 @@ check_empty() {
 echo "============================================================"
 echo "GCP Audit  |  Project: $PROJECT_ID  |  $(date -Iseconds)"
 echo "Primary region: $REGION"
+echo "============================================================"
+echo ""
+echo "TABLE OF CONTENTS"
+echo "  1.  Projects"
+echo "  2.  Enabled APIs"
+echo "  3.  Artifact Registry"
+echo "  4.  GCS Buckets"
+echo "  5.  Cloud Run (services, IAM, jobs)"
+echo "  6.  Cloud Scheduler"
+echo "  7.  Cloud SQL"
+echo "  8.  VPC & Networking (connectors, routers, firewall, DNS)"
+echo "  9.  Compute Engine"
+echo "  10. GKE"
+echo "  11. Cloud Functions"
+echo "  12. Redis / Memorystore"
+echo "  13. Pub/Sub"
+echo "  14. Secret Manager"
+echo "  15. IAM (policy, service accounts, keys)"
+echo "  16. Cloud Build"
+echo "  17. Logging"
+echo "  18. Monitoring (alerts, channels, uptime, SLOs)"
+echo "  19. Cloud Endpoints"
+echo "  [WARN] Security summary — grep '\[WARN\]' to filter"
 echo "============================================================"
 
 # ── 1. Project ────────────────────────────────────────────────
