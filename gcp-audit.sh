@@ -164,6 +164,9 @@ for svc in $(gcloud run services list \
   if echo "$policy" | grep -q "allUsers\|allAuthenticatedUsers"; then
     warn "PUBLIC ACCESS: $svc is publicly invokable (allUsers or allAuthenticatedUsers)"
   fi
+  if ! echo "$policy" | grep -q "roles/run.invoker"; then
+    warn "NO INVOKER: $svc has no run.invoker binding — service may be unreachable"
+  fi
 done
 
 run "5c. Cloud Run jobs ($REGION)" \
