@@ -479,13 +479,18 @@ echo ""
 echo "=== 15c. Service account keys – flag old or user-managed keys ==="
 for sa in $(gcloud iam service-accounts list \
     --project="$PROJECT_ID" --format="value(email)" 2>/dev/null); do
+  # Fixed option styling and stored as precise lines
   keys=$(gcloud iam service-accounts keys list \
     --iam-account="$sa" --project="$PROJECT_ID" \
-    --managed-by=user \
-    --format="table(name,validAfterTime,validBeforeTime)" 2>/dev/null || true)
-  if echo "$keys" | grep -qv "^NAME\|^$\|^Listed"; then
-    warn "USER-MANAGED KEY on $sa:"
-    echo "$keys"
+    --managed-by="user" \
+    --format="value(name,validAfterTime)" 2>/dev/null || true)
+  
+  # Only trigger warning if actual key outputs exist
+  if [ -n "$keys" ]; then
+    warn "USER-MANAGED KEY(S) FOUND on Service Account: $sa"
+    echo "$keys" | while IFS=$'\t' read -r key_name valid_after; do
+      echo "  -> Key: $(basename "$key_name") (Created: $valid_after)"
+    done
   fi
 done
 
@@ -546,12 +551,14 @@ run "18e. Monitoring services (for SLOs)" \
 
 echo ""
 echo "=== 18f. SLOs per monitoring service ==="
-for svc in $(gcloud monitoring services list \
+for svc_path in $(gcloud monitoring services list \
     --project="$PROJECT_ID" --format="value(name)" 2>/dev/null); do
-  [ -z "$svc" ] && continue
-  echo "--- Service: $svc ---"
+  [ -z "$svc_path" ] && continue
+  # Extract short ID from format path 'projects/.../services/SHORT_ID'
+  svc_id=$(basename "$svc_path")
+  echo "--- Service ID: $svc_id ---"
   gcloud monitoring slos list \
-    --project="$PROJECT_ID" --service="$svc" \
+    --project="$PROJECT_ID" --service="$svc_id" \
     --format="yaml" 2>/dev/null || true
 done
 
