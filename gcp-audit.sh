@@ -6,7 +6,7 @@
 # Output:  ./gcp-audit-<PROJECT_ID>-<timestamp>.txt
 # =============================================================================
 
-set -euo pipefail
+set -uo pipefail
 
 PROJECT_ID="${1:-${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}}"
 REGION="${2:-${REGION:-}}"
@@ -497,11 +497,11 @@ done
 echo ""
 echo "=== 15d. IAM check – flag overly broad roles ==="
 gcloud projects get-iam-policy "$PROJECT_ID" \
+  --flatten="bindings[].members" \
+  --filter="bindings.role:(roles/owner OR roles/editor)" \
   --format="value(bindings.role,bindings.members)" 2>/dev/null | \
-while IFS=$'\t' read -r role members; do
-  if echo "$role" | grep -qE "roles/owner|roles/editor"; then
-    warn "BROAD ROLE: $role assigned to: $members"
-  fi
+while IFS=$'\t' read -r role member; do
+  warn "BROAD ROLE: $role assigned to: $member"
 done
 
 # ── 16. Cloud Build ───────────────────────────────────────────
@@ -583,6 +583,12 @@ echo "Output: $OUTPUT_FILE"
 echo "============================================================"
 
 } 2>&1 | tee "$OUTPUT_FILE"
+
+sed -i 's/\x1b\[[0-9;]*m//g' "$OUTPUT_FILE"
+
+echo ""
+echo "SECURITY SUMMARY"
+grep '^\[WARN\]' "$OUTPUT_FILE" || echo "No warnings found"
 
 echo ""
 info "Done. Full output written to: $OUTPUT_FILE"
